@@ -1,19 +1,36 @@
-const express = require('express')
-const mongoose = require('mongoose')
-
-const app = express()
-
-
-mongoose.connect('mongodb://localhost:27017/fitbit')
-    .then(() => console.log('Conneted to mongodb server'))
-    .catch((err) => console.log(err))
+const app = require("./app");
+const cookieParser = require("cookie-parser");
+const dotenv = require("dotenv");
+const connectDatabase = require("./db/Database");
 
 
-app.get('/', (req, res) => {
-    res.send('Hello world')
-})
+// handling uncought exception
+process.on("uncaughtException", (err) => {
+    console.log("Error Uncaught Exception Occured: ", err.message);
+    console.log("server shut down for Uncaught Exception Occured");
+});
+
+//config
+dotenv.config({
+    path: "./config/.env",
+});
+
+// connect database
+connectDatabase();
 
 
-app.listen(3001, () => {
-    console.log('server is running on port 3001')
-})
+
+//create server
+const server = app.listen(process.env.PORT, () => {
+    console.log(`Server is working on http://localhost:${process.env.PORT}`);
+});
+
+// unhandled promise rejections
+process.on("unhandledRejection", (err, promise) => {
+    console.log(`Error of server down: ${err.message}`);
+    console.log(`Error of server down due to unhandled promise rejections`);
+    // close server & exit process
+    server.close(() => process.exit(1));
+});
+
+module.exports = server;

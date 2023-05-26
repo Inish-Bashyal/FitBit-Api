@@ -1,69 +1,15 @@
-const express = require('express')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+const express = require("express");
+const {
+  createUser,
+  loginUser,
+  logoutUser,
 
-const User = require('../models/User')
-const router = express.Router()
+} = require("../controller/UserController");
 
-router.post('/register', (req, res, next) => {
-    User.findOne({ username: req.body.username })
-        .then((user) => {
-            if (user) return res.status(400)
-                .json({ error: 'user already registered' })
+const router = express.Router();
 
-            bcrypt.hash(req.body.password, 10, (err, hash) => {
-                if (err) return res.status(500).json({ error: err.message })
-                const user = {
-                    username: req.body.username,
-                    password: hash,
-                    email: req.body.email,
-                    firstname: req.body.firstname,
-                    lastname: req.body.lastname,
-                    age: req.body.age,
-                    gender: req.body.gender,
-                    dateOfBirth: req.body.dateOfBirth,
-                }
-                User.create(user)
-                    .then((user) => res.status(201).json(user))
-                    .catch(next)
-            })
-        }).catch(next)
-})
-
-router.post('/login', (req, res, next) => {
-    const { username, password } = req.body
-    User.findOne({ username })
-        .then(user => {
-            if (!user) return res
-                .status(401)
-                .json({ error: 'user is not registered' })
-
-            bcrypt.compare(password, user.password, (err, success) => {
-                if (err) return res
-                    .status(500)
-                    .json({ error: err.message })
-
-                if (!success) return res
-                    .status(401)
-                    .json({ error: 'password does not match' })
-                const payload = {
-                    id: user._id,
-                    username: user.username,
-                    fullname: user.fullname,
-                    role: user.role
-                }
-
-                jwt.sign(payload,
-                    process.env.SECRET,
-                    { expiresIn: '1d' }, (err, encoded) => {
-                        if (err) res.status(500).json({ error: err.message })
-                        res.json({
-                            username: user.username,
-                            token: encoded
-                        })
-                    })
-            })
-        }).catch(next)
-})
+router.route("/register").post(createUser);
+router.route("/login").post(loginUser);
+router.route("/logout").get(logoutUser);
 
 module.exports = router
