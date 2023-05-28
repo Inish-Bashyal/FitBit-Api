@@ -20,7 +20,7 @@ dotenv.config({
 const user = require("./routes/user-routes");
 
 
-app.use("/api/v2", user);
+app.use("/users", user);
 
 
 

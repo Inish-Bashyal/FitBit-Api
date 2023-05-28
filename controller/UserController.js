@@ -1,55 +1,76 @@
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
-const user = require("../models/User");
+const User = require("../models/User");
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+
+
+// const {firstname,lastname, username, email, password, gender, age} = req.body;
+
 
 
 // Register user
 exports.createUser = catchAsyncErrors(async(req, res, next) => {
-    try {
-        const {firstname,lastname, username, email, password, gender, age} = req.body;
-        console.log(req.body);
-        const user = await User.create({
-            firstname,
-            lastname,
-            username,
-            email,
-            password,
-            gender,
-            age,
-        });
-    } catch (error) {
-        console.log(error);
-    }
+    User.findOne({ username: req.body.username })
+    .then((user) => {
+        if (user) return res.status(400)
+            .json({ error: 'User already registered' })
 
-    res.status(201).json({
-        success: true,
-    });
-
+        bcrypt.hash(req.body.password, 10, (err, hash) => {
+            if (err) return res.status(500).json({ error: err.message })
+            const user = {
+                username: req.body.username,
+                password: hash,
+                email: req.body.email,
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                age: req.body.age,
+                gender: req.body.gender
+            }
+            User.create(user)
+                .then((user) => res.status(201).json(user))
+                .catch(next)
+        })
+    }).catch(next)
 });
 
 // user login
 exports.loginUser = catchAsyncErrors(async(req, res, next) => {
-    const { email, password } = req.body;
+    const { username, password } = req.body
+    User.findOne({ username })
+        .then(user => {
+            if (!user) return res
+                .status(401)
+                .json({ error: 'user is not registered' })
 
-    if (!email || !password) {
-        return next(new ErrorHandler("Please enter the email & password", 400));
-    }
+            bcrypt.compare(password, user.password, (err, success) => {
+                if (err) return res
+                    .status(500)
+                    .json({ error: err.message })
 
-    const user = await User.findOne({ email }).select("+password");
+                if (!success) return res
+                    .status(401)
+                    .json({ error: 'password does not match' })
+                const payload = {
+                    id: user._id,
+                    username: user.username,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    age: user.age,
+                    gender: user.gender,
+                    role: user.role
+                }
 
-    if (!user) {
-        return next(
-            new ErrorHandler("User is not found with this email & password", 401)
-        );
-    }
-    const isPasswordMatched = await user.comparePassword(password);
-
-    if (!isPasswordMatched) {
-        return next(
-            new ErrorHandler("User is not found with this email & password", 401)
-        );
-    }
-
-    sendToken(user, 201, res);
+                jwt.sign(payload,
+                    process.env.JWT_SECRET,
+                    { expiresIn: '1d' }, (err, encoded) => {
+                        if (err) res.status(500).json({ error: err.message })
+                        res.json({
+                            username: user.username,
+                            token: encoded
+                        })
+                    })
+            })
+        }).catch(next)
 });
 
 // logout user
