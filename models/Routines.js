@@ -9,6 +9,10 @@ const remarkSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    completed:{
+        type: Boolean,
+
     }
 })
 
@@ -31,3 +35,5 @@ const routineSchema = new mongoose.Schema({
     },
     remarks: [remarkSchema]
 })
+
+module.exports = mongoose.model('Routine', routineSchema)
