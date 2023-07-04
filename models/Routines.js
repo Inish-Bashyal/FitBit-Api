@@ -17,6 +17,10 @@ const remarkSchema = new mongoose.Schema({
 })
 
 const routineSchema = new mongoose.Schema({
+    image: {
+        type: String,
+        default: null,
+      },
     title: {
         type: String,
         required: true
