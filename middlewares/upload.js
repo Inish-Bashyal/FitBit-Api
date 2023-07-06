@@ -1,30 +1,28 @@
-const multer = require('multer')
-const uuid = require('uuid').v4
-const path = require('path')
+const multer = require("multer");
+const maxSize = 2 * 1024 * 1024; // 2MB
+const path = require("path");
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "public/uploads")
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname.toLowerCase())
-        cb(null, `${file.fieldname}${uuid()}${ext}`)
-    }
-})
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads");
+  },
+  filename: (req, file, cb) => {
+    let ext = path.extname(file.originalname);
+    cb(null, `IMG-${Date.now()}` + ext);
+  },
+});
 
-const fileFilter = (req, file, cb) => {
-    const ext = path.extname(file.originalname.toLowerCase())
-
-    if (!ext.match(/png|jpg|jpeg/)) {
-        return cb(new Error('Only png, jpg and jpeg are allowed'), false)
-    }
-    cb(null, true)
-}
+const imageFileFilter = (req, file, cb) => {
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    return cb(new Error("File format not supported."), false);
+  }
+  cb(null, true);
+};
 
 const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: { fileSize: 1024 * 1024 * 2 }
-})
+  storage: storage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: maxSize },
+}).single("profilePicture");
 
-module.exports = upload
+module.exports = upload;
