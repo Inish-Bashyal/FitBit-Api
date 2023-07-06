@@ -25,7 +25,7 @@ connectDB();
 
 // Route files
 const auth = require("./routes/user-routes");
-// const batch = require("./routes/batch");
+const workout = require("./routes/workout-routes");
 // const course = require("./routes/course");
 
 // Body parser
@@ -55,7 +55,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Mount routers
 app.use("/users", auth);
-// app.use("/api/v1/batch", batch);
+app.use("/workouts", workout);
 // app.use("/api/v1/course", course);
 
 const PORT = process.env.PORT || 5000;
