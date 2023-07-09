@@ -16,8 +16,8 @@ const {
 
 
 router.post("/uploadImage", upload, uploadImage);
-router.post("/addWorkout", addWorkout);
-router.get("/getAllWorkouts", protect, getWorkouts);
+router.post("/addWorkout", protect,addWorkout);
+router.get("/getAllWorkouts",protect, getWorkouts);
 router.get("/getWorkout/:id", protect, getWorkout);
 router.put("/updateWorkout/:id", protect, updateWorkout);
 router.delete("/deleteWorkout/:id", protect, deleteWorkout);
