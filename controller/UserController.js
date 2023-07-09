@@ -77,66 +77,22 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 //=========================== Searching ===========================
 
-// @desc    Search user by batch
-// @route   GET /api/v1/user/search/:batchId
+// @desc    Search user by workout
+// @route   GET /api/v1/user/search/:workoutId
 // @access  Private
 
-  // const user = await User.find({ batch: req.params.batchId });
-  // if (!user) {
-  //   return res.status(404).send({ message: "No user found" });
-  // }
-  // res.status(200).json({
-  //   success: true,
-  //   count: user.length,
-  //   data: user,
-  // });
-
-//search by batch
-//   exports.searchByBatch = asyncHandler(async (req, res, next) => {
-//   const batchId = req.params.batchId;
+// exports.searchByWorkout = asyncHandler(async (req, res, next) => {
+//   const workoutId = req.params.workoutId;
 //   // dont show password
 
-//   User.find({ batch: batchId })
-//     .populate("batch", "-__v")
-//     .populate("course", "-__v")
+//   User.find({ workout: workoutId })
+//     .populate("workout", "-__v")
 //     .select("-password -__v")
-//     .then((user) => {
+//     .then((workout) => {
 //       res.status(201).json({
 //         success: true,
-//         message: "List of user by batch",
-//         data: user,
-//       });
-//     })
-//     .catch((err) => {
-//       res.status(500).json({
-//         success: false,
-//         message: err,
-//       });
-//     });
-// });
-
-// @desc    Search user by course
-// @route   GET /api/v1/user/search/:courseId
-// @access  Private
-
-// exports.searchByCourse = asyncHandler(async (req, res, next) => {
-//   const courseId = req.params.courseId;
-
-//   User.find({
-//     course: {
-//       $elemMatch: {
-//         $eq: { _id: courseId },
-//       },
-//     },
-//   })
-//     .select("-password -__v")
-//     .populate("batch", "-__v")
-//     .populate("course", "-__v")
-//     .then((user) => {
-//       res.status(201).json({
-//         success: true,
-//         message: "List of user by course",
-//         data: user,
+//         message: "List of students by workout",
+//         data: workout,
 //       });
 //     })
 //     .catch((err) => {

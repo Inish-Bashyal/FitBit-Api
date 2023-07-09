@@ -1,5 +1,8 @@
 const Workout = require("../models/Workout");
 const asyncHandler = require("../middlewares/catchAsyncErrors");
+const fs = require("fs");
+const path = require("path");
+
 
 
 exports.getWorkouts = asyncHandler(async (req, res, next) => {
@@ -70,40 +73,50 @@ exports.getWorkouts = asyncHandler(async (req, res, next) => {
 
   exports.deleteWorkout = asyncHandler(async (req, res, next) => {
     console.log(req.params.id);
-    Workout.findByIdAndDelete(req.params.id)
-      .then((workout) => {
-        if (user != null) {
-          var imagePath = path.join(
-            __dirname,
-            "..",
-            "public",
-            "uploads",
-            workout.image
-          );
+  //   Workout.findByIdAndDelete(req.params.id)
+  //     .then((workout) => {
+  //       if (user != null) {
+  //         var imagePath = path.join(
+  //           __dirname,
+  //           "..",
+  //           "public",
+  //           "uploads",
+  //           workout.image
+  //         );
   
-          fs.unlink(imagePath, (err) => {
-            if (err) {
-              console.log(err);
-            }
-            res.status(200).json({
-              success: true,
-              message: "Workout deleted successfully",
-            });
-          });
-        } else {
-          res.status(400).json({
-            success: false,
-            message: "Workout not found",
-          });
-        }
-      })
-      .catch((err) => {
-        res.status(500).json({
-          success: false,
-          message: err.message,
-        });
-      });
+  //         fs.unlink(imagePath, (err) => {
+  //           if (err) {
+  //             console.log(err);
+  //           }
+  //           res.status(200).json({
+  //             success: true,
+  //             message: "Workout deleted successfully",
+  //           });
+  //         });
+  //       } else {
+  //         res.status(400).json({
+  //           success: false,
+  //           message: "Workout not found",
+  //         });
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       res.status(500).json({
+  //         success: false,
+  //         message: err.message,
+  //       });
+  //     });
+  // }
+  await Workout.findByIdAndDelete(req.params.id).then((workout) => {
+    if (!workout) {
+      return res
+        .status(404)
+        .json({ message: "Workout not found with id of ${req.params.id}" });
+    }
+    res.status(200).json({ success: true, data: workout });
   });
+}
+  );
 
 
 exports.uploadImage = asyncHandler(async (req, res, next) => {
