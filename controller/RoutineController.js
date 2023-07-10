@@ -1,31 +1,23 @@
 const Routine = require("../models/Routines")
 const Workout = require("../models/Workout")
 const ErrorHandler = require("../utils/error_handler")
-const catchAsyncError = require("../middleware/catchAsyncError")
+const catchAsyncError = require("../middlewares/catchAsyncErrors")
 const mongoose = require("mongoose")
 
 
-exports.createOrder = catchAsyncError(async(req,res,next)=>{
+exports.createRoutine = catchAsyncError(async(req,res,next)=>{
     const {
-        shippingInfo,
-        orderItems,
-        paymentInfo,
-        itemsPrice,
-        taxPrice,
-        shippingPrice,
-        totalPrice
+      workout,
+      routineStatus,
+      completedAt,
     }=req.body
 
-    const order = await Order.create({
-        shippingInfo,
-        orderItems,
-        paymentInfo,
-        itemsPrice,
-        taxPrice,
-        shippingPrice,
-        totalPrice,
-        paidAt: Date.now(),
-        user: req.customer._id
+    const routine = await Routine.create({
+      workout,
+      routineStatus,
+      completedAt,
+        enrolledAt: Date.now(),
+        user: req.user._id
     });
     res.status(201).json({
         success: true,
@@ -33,14 +25,14 @@ exports.createOrder = catchAsyncError(async(req,res,next)=>{
     })
 })
 
-exports.getSingleOrder = catchAsyncError(async (req, res, next) => {
-  const order = await Order.findById(req.params.id).populate(
-    "user",
-    "name email"
+exports.getSingleRoutine = catchAsyncError(async (req, res, next) => {
+  const routine = await Routine.findById(req.params.id).populate(
+    "username",
+    "email"
   );
 
-  if (!order) {
-    return next(new ErrorHandler("Order not found with this Id", 404));
+  if (!routine) {
+    return next(new ErrorHandler("Routine not found with this Id", 404));
   }
 
   res.status(200).json({
@@ -50,9 +42,9 @@ exports.getSingleOrder = catchAsyncError(async (req, res, next) => {
 });
 
 // check your own orders
-exports.myOrders = catchAsyncError(async (req, res, next) => {
-    const orders = await Order.find({ user: req.customer._id });
-    console.log(orders)
+exports.myRoutines = catchAsyncError(async (req, res, next) => {
+    const routines = await Routine.find({ user: req.customer._id });
+    console.log(routines)
   
     res.status(200).json({
       success: true,
@@ -62,42 +54,27 @@ exports.myOrders = catchAsyncError(async (req, res, next) => {
 
   //get all orders
 
-  exports.getAllOrders = catchAsyncError(async (req, res, next) => {
-    const orders = await Order.find();
+  exports.getAllRoutines = catchAsyncError(async (req, res, next) => {
+    const routines = await Routine.find();
   
-    let totalAmount = 0;
-
-
-  
-    orders.forEach((order) => {
-    
-      totalAmount += order.totalPrice;
-    });
   
     res.status(200).json({
       success: true,
-      totalAmount,
-      
-      orders,
+      routines,
     });
   });
 
-async function updateStock  (id,quantity){
-    const product = await Product.findById(id);
-    product.Stock -=quantity
-    await product.save({validateBeforeSave:false})
-}
 
 //update order 
-exports.updateOrder = catchAsyncError(async (req, res, next) => {
-  const order = await Order.findById(req.params.id);
+exports.updateRoutine = catchAsyncError(async (req, res, next) => {
+  const routine = await Routine.findById(req.params.id);
 
-  if (!order) {
+  if (!routine) {
     return next(new ErrorHandler("Order not found with this Id", 404));
   }
 
-  if (order.orderStatus === "Delivered") {
-    return next(new ErrorHandler("You have already delivered this order", 400));
+  if (routine.routineStatus === "Completed") {
+    return next(new ErrorHandler("You have already completed this routine", 400));
   }
 
   if (req.body.status === "Shipped") {
@@ -107,11 +84,11 @@ exports.updateOrder = catchAsyncError(async (req, res, next) => {
   }
   order.orderStatus = req.body.status;
 
-  if (req.body.status === "Delivered") {
-    order.deliveredAt = Date.now();
+  if (req.body.routineStatus === "Completed") {
+    routine.completedAt = Date.now();
   }
 
-  await order.save({ validateBeforeSave: false });
+  await routine.save({ validateBeforeSave: false });
   res.status(200).json({
     success: true,
   });
@@ -119,14 +96,14 @@ exports.updateOrder = catchAsyncError(async (req, res, next) => {
 
 
 //delete the order by admin
-exports.deleteOrder = catchAsyncError(async (req, res, next) => {
-    const order = await Order.findById(req.params.id);
+exports.deleteRoutine = catchAsyncError(async (req, res, next) => {
+    const routine = await Routine.findById(req.params.id);
   
-    if (!order) {
-      return next(new ErrorHandler("Order not found with this Id", 404));
+    if (!routine) {
+      return next(new ErrorHandler("Routine not found with this Id", 404));
     }
   
-    await order.remove();
+    await routine.remove();
   
     res.status(200).json({
       success: true,
