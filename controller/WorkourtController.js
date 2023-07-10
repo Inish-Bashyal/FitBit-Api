@@ -130,5 +130,110 @@ exports.uploadImage = asyncHandler(async (req, res, next) => {
   });
   
 
+//Creating the review
+exports.createProductReview = catchAsyncError(async (req, res, next) => {
+  const { rating, comment, workoutId } = req.body;
+  console.log(workoutId)
+
+  const review = {
+    user: req.user._id,
+    name: req.user.name,
+    rating: Number(rating),
+    comment,
+  };
+  console.log(review)
+
+  const workout = await Workout.findById(workoutId);
+ 
+
+  const isReviewed = workout.reviews.find(
+    (rev) => rev.user.toString() === req.user._id.toString()
+  );
+
+  if (isReviewed) {
+    workout.reviews.forEach((rev) => {
+      if (rev.user.toString() === req.user._id.toString())
+        (rev.rating = rating), (rev.comment = comment);
+    });
+    console.log(isReviewed)
+  } else {
+    workout.reviews.push(review);
+    workout.numOfReviews = workout.reviews.length;
+  }
+
+  let avg = 0;
+
+  workout.reviews.forEach((rev) => {
+    avg += rev.rating;
+  });
+
+  workout.ratings = avg / workout.reviews.length;
+
+  await workout.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+      success:true,
+      review
+  })
+});
+
+exports.getWorkoutReviews = (async(req,res,next)=> {
+    const workout = await Workout.findById(req.query.id);
+
+    if(!workout){
+        return next(new Error("Product not found",404))
+    }
+    res.status(200).json({
+        success: true,
+        reviews: workout.reviews
+    })
+})
+
+// Delete Review
+exports.deleteWorkoutReview = catchAsyncError(async (req, res, next) => {
+const workout = await Workout.findById(req.query.workoutId);
+
+if (!workout) {
+  return next(new ErrorHandler("Workout not found", 404));
+}
+
+const reviews = workout.reviews.filter(
+  (rev) => rev._id.toString() !== req.query.id.toString()
+);
+
+let avg = 0;
+
+reviews.forEach((rev) => {
+  avg += rev.rating;
+});
+
+let ratings = 0;
+
+if (reviews.length === 0) {
+  ratings = 0;
+} else {
+  ratings = avg / reviews.length;
+}
+
+const numOfReviews = reviews.length;
+
+await Workout.findByIdAndUpdate(
+  req.query.workoutId,
+  {
+    reviews,
+    ratings,
+    numOfReviews,
+  },
+  {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  }
+);
+
+res.status(200).json({
+  success: true,
+});
+});
   
   

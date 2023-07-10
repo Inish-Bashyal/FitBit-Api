@@ -1,20 +1,5 @@
 const mongoose = require('mongoose')
 
-const remarkSchema = new mongoose.Schema({
-    text: {
-        type: String,
-        required: true,
-        minLength: [100, 'review should be longer than 100 characters']
-    },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    completed:{
-        type: Boolean,
-
-    }
-})
 
 const workoutSchema = new mongoose.Schema({
     image: {
@@ -41,7 +26,27 @@ const workoutSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    remarks: [remarkSchema]
+    reviews:[
+        {
+            user: {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"Customer",
+                required: true
+            },
+            name: {
+                type: String,
+                required: true
+            },
+            rating: {
+                type: Number,
+                required: true
+            },
+            comment: {
+                type: String,
+                required: true
+            }
+        }
+    ],
 });
 
 
