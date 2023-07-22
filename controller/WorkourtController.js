@@ -131,7 +131,7 @@ exports.uploadImage = asyncHandler(async (req, res, next) => {
   
 
 //Creating the review
-exports.createProductReview = catchAsyncError(async (req, res, next) => {
+exports.createProductReview = asyncHandler(async (req, res, next) => {
   const { rating, comment, workoutId } = req.body;
   console.log(workoutId)
 
@@ -190,7 +190,7 @@ exports.getWorkoutReviews = (async(req,res,next)=> {
 })
 
 // Delete Review
-exports.deleteWorkoutReview = catchAsyncError(async (req, res, next) => {
+exports.deleteWorkoutReview = asyncHandler(async (req, res, next) => {
 const workout = await Workout.findById(req.query.workoutId);
 
 if (!workout) {

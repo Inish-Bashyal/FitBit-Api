@@ -15,7 +15,7 @@ const routineSchema = new mongoose.Schema({
   },
 
   enrolledAt: {
-    type: Date.now,
+    type: Date,
     required: true,
   },
 

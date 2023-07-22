@@ -1,5 +1,24 @@
 const mongoose = require('mongoose')
 
+const remarkSchema = new mongoose.Schema({
+    user: {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    rating: {
+        type: Number,
+        required: true
+    },
+    comment: {
+        type: String,
+        required: true
+    }
+})
 
 const workoutSchema = new mongoose.Schema({
     image: {
@@ -22,31 +41,8 @@ const workoutSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    reviews:[
-        {
-            user: {
-                type:mongoose.Schema.Types.ObjectId,
-                ref:"Customer",
-                required: true
-            },
-            name: {
-                type: String,
-                required: true
-            },
-            rating: {
-                type: Number,
-                required: true
-            },
-            comment: {
-                type: String,
-                required: true
-            }
-        }
-    ],
+
+    remarks: [remarkSchema]
 });
 
 

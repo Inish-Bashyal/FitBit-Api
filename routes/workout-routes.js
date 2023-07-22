@@ -12,6 +12,9 @@ const {
   deleteWorkout,
   uploadImage,
   getMe,
+  createProductReview,
+  getWorkoutReviews,
+  deleteWorkoutReview,
 } = require("../controller/WorkourtController");
 
 
@@ -22,5 +25,9 @@ router.get("/getWorkout/:id", protect, getWorkout);
 router.put("/updateWorkout/:id", protect, updateWorkout);
 router.delete("/deleteWorkout/:id", protect, deleteWorkout);
 router.get("/getMe/:id", protect, getMe);
+router.route('/review').put(protect,createProductReview)
+router.route('/give/review').put(protect,createProductReview)
+router.route('/reviews').get(getWorkoutReviews)
+router.route('/reviews/delete/:id').delete(protect, deleteWorkoutReview)
 
 module.exports = router;
