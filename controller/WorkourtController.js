@@ -115,8 +115,7 @@ exports.getWorkouts = asyncHandler(async (req, res, next) => {
     }
     res.status(200).json({ success: true, data: workout });
   });
-}
-  );
+});
 
 
 exports.uploadImage = asyncHandler(async (req, res, next) => {
@@ -127,7 +126,7 @@ exports.uploadImage = asyncHandler(async (req, res, next) => {
       success: true,
       data: req.file.filename,
     });
-  });
+  }); 
   
 
 //Creating the review

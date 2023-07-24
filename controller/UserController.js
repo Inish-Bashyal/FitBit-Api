@@ -32,7 +32,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
       success: true,
       data: user,
     });
-  }w
+  }
 });
 
 // @desc    Create new user

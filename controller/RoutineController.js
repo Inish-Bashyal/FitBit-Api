@@ -21,7 +21,7 @@ exports.createRoutine = catchAsyncError(async(req,res,next)=>{
     });
     res.status(201).json({
         success: true,
-        order
+        routine
     })
 })
 
@@ -37,18 +37,18 @@ exports.getSingleRoutine = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    order,
+    routine,
   });
 });
 
 // check your own orders
 exports.myRoutines = catchAsyncError(async (req, res, next) => {
-    const routines = await Routine.find({ user: req.customer._id });
+    const routines = await Routine.find({ user: req.user._id }).populate('workout');
     console.log(routines)
   
     res.status(200).json({
       success: true,
-      orders,
+      routines,
     });
   });
 
@@ -70,19 +70,12 @@ exports.updateRoutine = catchAsyncError(async (req, res, next) => {
   const routine = await Routine.findById(req.params.id);
 
   if (!routine) {
-    return next(new ErrorHandler("Order not found with this Id", 404));
+    return next(new ErrorHandler("Routine not found with this Id", 404));
   }
 
   if (routine.routineStatus === "Completed") {
     return next(new ErrorHandler("You have already completed this routine", 400));
   }
-
-  if (req.body.status === "Shipped") {
-    order.orderItems.forEach(async (o) => {
-      await updateStock(o.product, o.quantity);
-    });
-  }
-  order.orderStatus = req.body.status;
 
   if (req.body.routineStatus === "Completed") {
     routine.completedAt = Date.now();
@@ -94,18 +87,15 @@ exports.updateRoutine = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
-//delete the order by admin
-exports.deleteRoutine = catchAsyncError(async (req, res, next) => {
-    const routine = await Routine.findById(req.params.id);
-  
+//delete the routine
+  exports.deleteRoutine = catchAsyncError(async (req, res, next) => {
+    console.log(req.params.id);
+  await Routine.findByIdAndDelete(req.params.id).then((routine) => {
     if (!routine) {
-      return next(new ErrorHandler("Routine not found with this Id", 404));
+      return res
+        .status(404)
+        .json({ message: "Routine not found with id of ${req.params.id}" });
     }
-  
-    await routine.remove();
-  
-    res.status(200).json({
-      success: true,
-    });
+    res.status(200).json({ success: true, data: routine });
   });
+});
