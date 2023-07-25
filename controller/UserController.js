@@ -1,7 +1,5 @@
 const asyncHandler = require("../middlewares/catchAsyncErrors");
 const User = require("../models/User");
-// const Batch = require("../models/batch");
-// const Course = require("../models/course");
 const path = require("path");
 const fs = require("fs");
 

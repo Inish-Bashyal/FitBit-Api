@@ -41,7 +41,7 @@ exports.getSingleRoutine = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// check your own orders
+// check your own routines
 exports.myRoutines = catchAsyncError(async (req, res, next) => {
     const routines = await Routine.find({ user: req.user._id }).populate('workout');
     console.log(routines)
@@ -65,25 +65,43 @@ exports.myRoutines = catchAsyncError(async (req, res, next) => {
   });
 
 
-//update order 
+//update routine 
+// exports.updateRoutine = catchAsyncError(async (req, res, next) => {
+//   const routine = await Routine.findById(req.params.id);
+
+//   if (!routine) {
+//     return next(new ErrorHandler("Routine not found with this Id", 404));
+//   }
+
+//   if (routine.routineStatus === "Completed") {
+//     return next(new ErrorHandler("You have already completed this routine", 400));
+//   }
+
+//   if (req.body.routineStatus === "Completed") {
+//     routine.completedAt = Date.now();
+//   }
+
+//   await routine.save({ validateBeforeSave: false });
+//   res.status(200).json({
+//     success: true,
+//   });
+// });
+
 exports.updateRoutine = catchAsyncError(async (req, res, next) => {
-  const routine = await Routine.findById(req.params.id);
+  const current_routine = req.body;
+  const routine = await Routine.findByIdAndUpdate(req.params.id, current_routine, {
+    new: true,
+    runValidators: true,
+  });
 
   if (!routine) {
-    return next(new ErrorHandler("Routine not found with this Id", 404));
+    return res.status(404).send({ message: "Routine not found" });
   }
 
-  if (routine.routineStatus === "Completed") {
-    return next(new ErrorHandler("You have already completed this routine", 400));
-  }
-
-  if (req.body.routineStatus === "Completed") {
-    routine.completedAt = Date.now();
-  }
-
-  await routine.save({ validateBeforeSave: false });
   res.status(200).json({
     success: true,
+    message: "Routine updated successfully",
+    data: routine,
   });
 });
 
