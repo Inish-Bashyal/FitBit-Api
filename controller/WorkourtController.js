@@ -6,11 +6,11 @@ const path = require("path");
 
 
 exports.getWorkouts = asyncHandler(async (req, res, next) => {
-    const user = await Workout.find({});
+    const workout = await Workout.find({});
     res.status(200).json({
       success: true,
-      count: user.length,
-      data: user,
+      count: workout.length,
+      data: workout,
     });
   });
 
