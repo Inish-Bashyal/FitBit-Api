@@ -9,8 +9,7 @@ const {
   getUser,
   register,
   login,
-  // searchByBatch,
-  // searchByCourse,
+  getUserByUsername,  // searchByCourse,
   updateUser,
   deleteUser,
   uploadImage,
@@ -19,6 +18,7 @@ const {
 
 router.post("/uploadImage", upload, uploadImage);
 router.post("/register", register);
+router.get("/getUserbyName/:username", protect,getUserByUsername);
 router.post("/login", login);
 router.get("/getAllUsers", protect, getUsers);
 // router.get("/getStudentsByBatch/:batchId", protect, searchByBatch);

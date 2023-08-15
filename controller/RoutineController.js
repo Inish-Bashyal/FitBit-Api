@@ -25,6 +25,23 @@ exports.createRoutine = catchAsyncError(async(req,res,next)=>{
     })
 })
 
+exports.createRoutineMob = catchAsyncError(async (req, res, next) => {
+  const { workout, routineStatus, completedAt } = req.body;
+
+  const routine = await Routine.create({
+    workout: workout, // Save the workout object directly in the database
+    routineStatus,
+    completedAt,
+    enrolledAt: Date.now(),
+    user: req.user._id,
+  });
+  res.status(201).json({
+    success: true,
+    routine,
+  });
+});
+
+
 exports.getSingleRoutine = catchAsyncError(async (req, res, next) => {
   const routine = await Routine.findById(req.params.id).populate(
     "username",
@@ -51,6 +68,28 @@ exports.myRoutines = catchAsyncError(async (req, res, next) => {
       routines,
     });
   });
+
+
+  exports.myRoutinesMob = catchAsyncError(async (req, res, next) => {
+    // Check if the request contains a valid user ID
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized. User ID not found.",
+      });
+    }
+  
+    // Fetch routines that belong to the user with the provided user ID
+    const routines = await Routine.find({ user: req.user._id }).populate('workout');
+    console.log(routines);
+  
+    // Respond with the routines
+    res.status(200).json({
+      success: true,
+      routines,
+    });
+  });
+  
 
   //get all orders
 

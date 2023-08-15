@@ -136,6 +136,20 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getUserByUsername = asyncHandler(async (req, res, next) => {
+  const { username } = req.params;
+  const user = await User.findOne({ username }).select("-password");
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
 // @desc    Delete user
 // @route   DELETE /api/v1/user/:id
 // @access  Private

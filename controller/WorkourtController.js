@@ -42,6 +42,48 @@ exports.getWorkouts = asyncHandler(async (req, res, next) => {
     });
   });
 
+  exports.MobaddWorkout = asyncHandler(async (req, res, next) => {
+    const workout = await Workout.findOne({ title: req.body.title });
+    console.log(req.body);
+    if (workout) {
+      return res.status(400).send({ message: "Workout already exists" });
+    }
+  
+    // Create a new workout in the database
+    const createdWorkout = await Workout.create(req.body);
+  
+    // Return the created workout data in the response
+    res.status(201).json({
+      success: true,
+      message: "Workout added successfully",
+      data: createdWorkout, // This will include the new workout's data
+    });
+  });
+  
+
+
+exports.MobupdateWorkout = asyncHandler(async (req, res, next) => {
+  const current_workout = req.body;
+  const workout = await Workout.findByIdAndUpdate(req.params.id, current_workout, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!workout) {
+    return res.status(404).send({ message: "Workout not found" });
+  }
+
+  // Fetch all workouts from the database
+  const allWorkouts = await Workout.find();
+
+  res.status(200).json({
+    success: true,
+    message: "Workout updated successfully",
+    data: allWorkouts, // Return all workouts in the data field
+  });
+});
+
+
   exports.updateWorkout = asyncHandler(async (req, res, next) => {
     const current_workout = req.body;
     const workout = await Workout.findByIdAndUpdate(req.params.id, current_workout, {
